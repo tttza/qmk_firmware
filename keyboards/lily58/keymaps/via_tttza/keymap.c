@@ -36,11 +36,11 @@ user_config_t user_config = {};
 
 enum custom_keycodes {
   CK_EnJIS = SAFE_RANGE,
-  CK_EnUS
+  CK_EnUS,
+  LOWER,
+  RAISE
 };
 
-#define RAISE MO(_RAISE)
-#define LOWER MO(_LOWER)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
   KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_LBRC,  KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT, \
-                        KC_LALT, KC_LGUI, MO(_LOWER), KC_SPC, KC_ENT, MO(_RAISE), KC_BSPC, KC_RGUI \
+                        KC_LALT, KC_LGUI, LOWER, KC_SPC, KC_ENT, RAISE, KC_BSPC, KC_RGUI \
 ),
 /* LOWER
  * ,-----------------------------------------.                    ,-----------------------------------------.
@@ -257,6 +257,50 @@ void set_keyboard_lang_to_jis(bool set_jis){
     save_persistent();
 }
 
+// ref: https://gist.github.com/okapies/5d13a174cbb13ce34dbd9faede9d0b71#file-keymap-c-L99-L164
+static bool lower_pressed = false;
+static uint16_t lower_pressed_time = 0;
+static bool raise_pressed = false;
+static uint16_t raise_pressed_time = 0;
+bool process_lower(uint16_t keycode, keyrecord_t *record){
+     if (record->event.pressed) {
+        lower_pressed = true;
+        lower_pressed_time = record->event.time;
+
+        layer_on(_LOWER);
+      } else {
+        layer_off(_LOWER);
+
+        if (lower_pressed && (TIMER_DIFF_16(record->event.time, lower_pressed_time) < TAPPING_TERM)) {
+          register_code(KC_LANG2); // for macOS
+          register_code(KC_MHEN);
+          unregister_code(KC_MHEN);
+          unregister_code(KC_LANG2);
+        }
+        lower_pressed = false;
+      }
+      return false;
+}
+bool process_raise(uint16_t keycode, keyrecord_t *record){
+      if (record->event.pressed) {
+        raise_pressed = true;
+        raise_pressed_time = record->event.time;
+
+        layer_on(_RAISE);
+      } else {
+        layer_off(_RAISE);
+
+        if (raise_pressed && (TIMER_DIFF_16(record->event.time, raise_pressed_time) < TAPPING_TERM)) {
+          register_code(KC_LANG1); // for macOS
+          register_code(KC_HENK);
+          unregister_code(KC_HENK);
+          unregister_code(KC_LANG1);
+        }
+        raise_pressed = false;
+      }
+      return false;
+}
+
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
@@ -271,6 +315,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case CK_EnUS:
         set_keyboard_lang_to_jis(false);
         return false;
+    case LOWER:
+        return process_lower(keycode, record);
+    case RAISE:
+        return process_raise(keycode, record);
     default:
       if (user_config.jis){
           return twpair_on_jis(keycode, record);
@@ -279,3 +327,4 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
   }
 }
+
