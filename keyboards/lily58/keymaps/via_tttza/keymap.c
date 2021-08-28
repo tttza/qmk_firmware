@@ -112,9 +112,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
+ * |      |      |      |      |      |      |                    |      |TO_US |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------.    ,-------|      |      |RGB ON| HUE+ | SAT+ | VAL+ |
+ * |      |      |      |      |      |      |-------.    ,-------|      |TO_JIS|RGB ON| HUE+ | SAT+ | VAL+ |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * |      |      |      |      |      |      |-------|    |-------|      |      | MODE | HUE- | SAT- | VAL- |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
@@ -228,6 +228,31 @@ void oled_task_user(void) {
 }
 #endif // OLED_DRIVER_ENABLE
 
+
+// -------- EEPROM functions --------
+
+void eeconfig_init_user(void) {
+    save_persistent();
+}
+
+void keyboard_post_init_user(void) {
+    is_left = is_keyboard_left();
+    if (is_left) {
+        load_persistent();
+    }
+}
+
+void load_persistent(void) {
+    persistent_config.raw = eeprom_read_dword(EECONFIG_PERSISTENT);
+}
+
+void save_persistent(void) {
+    eeprom_update_dword(EECONFIG_PERSISTENT, persistent_config.raw);
+}
+
+
+// -------- Keyboard functions --------
+
 void set_keyboard_lang(bool set_jis=true){
     if ( persistent_config.jis == set_jis){ return; }
     if (set_jis){
@@ -235,6 +260,7 @@ void set_keyboard_lang(bool set_jis=true){
     } else {
         persistent_config.jis = 0;
     }
+    save_persistent();
 }
 
 
