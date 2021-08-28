@@ -18,9 +18,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <eeconfig.h>
 #include "keycode.h"
+#include "custom_keymap.h"
 #include "keymap_extras/keymap_jp.h"
-#include "keymap.h"
+#include <twpair_on_jis.h>
 
 //extern uint8_t is_master;
 
@@ -31,7 +33,7 @@ enum layer_number {
   _ADJUST,
 };
 
-persistent_config_t persistent_config;
+user_config_t user_config = {};
 
 enum custom_keycodes {
   CK_EnJIS = SAFE_RANGE,
@@ -228,8 +230,19 @@ void oled_task_user(void) {
 }
 #endif // OLED_DRIVER_ENABLE
 
+// -------- variables --------
+
+bool is_left = false;
 
 // -------- EEPROM functions --------
+
+void load_persistent(void) {
+    user_config.raw = eeconfig_read_user();
+}
+
+void save_persistent(void) {
+    eeconfig_update_user(user_config.raw);
+}
 
 void eeconfig_init_user(void) {
     save_persistent();
@@ -242,23 +255,15 @@ void keyboard_post_init_user(void) {
     }
 }
 
-void load_persistent(void) {
-    persistent_config.raw = eeprom_read_dword(EECONFIG_PERSISTENT);
-}
-
-void save_persistent(void) {
-    eeprom_update_dword(EECONFIG_PERSISTENT, persistent_config.raw);
-}
-
 
 // -------- Keyboard functions --------
 
-void set_keyboard_lang(bool set_jis=true){
-    if ( persistent_config.jis == set_jis){ return; }
+void set_keyboard_lang_to_jis(bool set_jis){
+    if ( user_config.jis == set_jis){ return; }
     if (set_jis){
-        persistent_config.jis = 1;
+        user_config.jis = 1;
     } else {
-        persistent_config.jis = 0;
+        user_config.jis = 0;
     }
     save_persistent();
 }
@@ -272,12 +277,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
   switch (keycode) {
     case CK_EnJIS:
-    set_keyboard_lang(set_jis=true)
-      return false;
+        set_keyboard_lang_to_jis(true);
+        return false;
     case CK_EnUS:
-    set_keyboard_lang(set_jis=false)
-      return false;
+        set_keyboard_lang_to_jis(false);
+        return false;
     default:
-      return true;
+      if (user_config.jis){
+          return twpair_on_jis(keycode, record);
+      } else {
+          return true;
+      }
   }
 }
