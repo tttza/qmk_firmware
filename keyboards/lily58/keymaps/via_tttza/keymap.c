@@ -136,8 +136,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #ifdef OLED_DRIVER_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (!is_keyboard_master())
-    return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+  if (is_keyboard_master())
+    return OLED_ROTATION_90;
+  else
+    return OLED_ROTATION_270;
   return rotation;
 }
 
@@ -202,27 +204,21 @@ const char *read_keylogs(void) {
 void oled_task_user(void) {
   if (is_keyboard_master()) {
     // Host Keyboard Layer Status
-    oled_write_P(PSTR("Layer: "), false);
+    uint32_t _layer = get_highest_layer(layer_state);
+    oled_write_ln_P(PSTR("NORM"), _layer == _QWERTY);
+    oled_write_ln_P(PSTR("RAISE"), _layer == _RAISE);
+    oled_write_ln_P(PSTR("LOWER"), _layer == _LOWER);
+    oled_write_ln_P(PSTR("ADJ."), _layer == _ADJUST);
 
-    switch (get_highest_layer(layer_state)) {
-    case _QWERTY:
-        oled_write_ln_P(PSTR("Default"), false);
-        break;
-    case _RAISE:
-        oled_write_ln_P(PSTR("Raise"), false);
-        break;
-    case _LOWER:
-        oled_write_ln_P(PSTR("Lower"), false);
-        break;
-    case _ADJUST:
-        oled_write_ln_P(PSTR("Adjust"), false);
-        break;
-    default:
-        oled_write_ln_P(PSTR("Undefined"), false);
+    oled_write_ln(" ", false);
+    if (user_config.jis){
+        oled_write_ln("JIS", false);
+    } else {
+        oled_write_ln("US", false);
     }
 
+    oled_write_ln(" ", false);
     oled_write_ln(read_keylog(), false);
-    oled_write_ln(read_keylogs(), false);
 
   } else {
       render_logo();
