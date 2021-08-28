@@ -1,6 +1,5 @@
 #include QMK_KEYBOARD_H
 #include <stdio.h>
-#include <timer.h>
 
 // WPM-responsive animation stuff here
 #define IDLE_FRAMES 5
@@ -22,6 +21,7 @@ uint8_t current_idle_frame = 0;
 // uint8_t current_prep_frame = 0; // uncomment if PREP_FRAMES >1
 uint8_t current_tap_frame = 0;
 
+// ref: https://github.com/qmk/qmk_firmware/blob/master/keyboards/kyria/keymaps/j-inc/keymap.c
 // Images credit j-inc(/James Incandenza) and pixelbenny. Credit to obosob for initial animation approach.
 void render_anim(void) {
     static const char PROGMEM idle[IDLE_FRAMES-1][ANIM_SIZE] = {
