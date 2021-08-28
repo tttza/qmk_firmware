@@ -232,7 +232,7 @@ void oled_task_user(void) {
 
 // -------- variables --------
 
-bool is_left = false;
+// Not defined yet.
 
 // -------- EEPROM functions --------
 
@@ -249,8 +249,7 @@ void eeconfig_init_user(void) {
 }
 
 void keyboard_post_init_user(void) {
-    is_left = is_keyboard_left();
-    if (is_left) {
+    if (is_keyboard_master()) {
         load_persistent();
     }
 }
