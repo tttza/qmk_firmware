@@ -8,3 +8,6 @@ LTO_ENABLE = yes
 
 SRC += twpair_on_jis.c
 SRC += oled_render_slave.c
+SRC += ./lib/logo_reader.c
+
+EXTRAFLAGS += -flto

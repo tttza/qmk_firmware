@@ -135,11 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #ifdef OLED_DRIVER_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (is_keyboard_master())
-    return OLED_ROTATION_90;
-  else
-    return OLED_ROTATION_270;
-  return rotation;
+  return OLED_ROTATION_180;
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -192,24 +188,30 @@ const char *read_keylogs(void) {
 }
 //new
 
+const char *read_logo(void);
+
 void oled_task_user(void) {
   if (is_keyboard_master()) {
     // Host Keyboard Layer Status
-    uint32_t _layer = get_highest_layer(layer_state);
-    oled_write_ln_P(PSTR("NORM"), _layer == _QWERTY);
-    oled_write_ln_P(PSTR("RAISE"), _layer == _RAISE);
-    oled_write_ln_P(PSTR("LOWER"), _layer == _LOWER);
-    oled_write_ln_P(PSTR("ADJ."), _layer == _ADJUST);
 
-    oled_write_ln(" ", false);
+    oled_write(read_logo(), false);
+    oled_set_cursor(17, 3);
     if (user_config.jis){
         oled_write_ln("JIS", false);
     } else {
-        oled_write_ln("US", false);
+        oled_write_ln(" US", false);
     }
 
-    oled_write_ln(" ", false);
-    oled_write_ln(read_keylog(), false);
+    // oled_write_ln(" ", false);
+    // oled_write_ln(read_keylog(), false);
+
+    oled_set_cursor(5, 6);
+    uint32_t _layer = get_highest_layer(layer_state);
+    oled_write_P(PSTR(" NORM "), _layer == _QWERTY);
+    oled_write_ln_P(PSTR(" RAISE "), _layer == _RAISE);
+    oled_set_cursor(5, 7);
+    oled_write_P(PSTR(" ADJ. "), _layer == _ADJUST);
+    oled_write_ln_P(PSTR(" LOWER "), _layer == _LOWER);
 
   } else {
     render_anim();
@@ -272,9 +274,9 @@ bool process_lower(uint16_t keycode, keyrecord_t *record){
         layer_off(_LOWER);
 
         if (lower_pressed && (TIMER_DIFF_16(record->event.time, lower_pressed_time) < TAPPING_TERM)) {
-          register_code(KC_LANG2); // for macOS
           register_code(KC_MHEN);
           unregister_code(KC_MHEN);
+          register_code(KC_LANG2); // for macOS
           unregister_code(KC_LANG2);
         }
         lower_pressed = false;
@@ -291,9 +293,9 @@ bool process_raise(uint16_t keycode, keyrecord_t *record){
         layer_off(_RAISE);
 
         if (raise_pressed && (TIMER_DIFF_16(record->event.time, raise_pressed_time) < TAPPING_TERM)) {
-          register_code(KC_LANG1); // for macOS
           register_code(KC_HENK);
           unregister_code(KC_HENK);
+          register_code(KC_LANG1); // for macOS
           unregister_code(KC_LANG1);
         }
         raise_pressed = false;
