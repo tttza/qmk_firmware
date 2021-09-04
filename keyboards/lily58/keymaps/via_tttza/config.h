@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 
 #define OLED_BRIGHTNESS 1
-#define OLED_TIMEOUT 300004
+#define OLED_TIMEOUT 30000
 
 // Underglow
 /*
