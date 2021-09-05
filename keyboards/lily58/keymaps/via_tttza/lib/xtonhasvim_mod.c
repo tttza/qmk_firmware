@@ -159,6 +159,8 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
 
     if (record->event.pressed) {
       if(keycode == VIM_START) {
+        if (layer_state_is(vim_cmd_layer()) & (vstate == VIM_START)){ layer_clear(); return false; } // Toggle
+
         // entry from anywhere
         layer_on(vim_cmd_layer());
         vstate = VIM_START;
