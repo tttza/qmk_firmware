@@ -20,7 +20,8 @@
         "utility": "c",
         "ranges": "c",
         "chrono": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "xstring": "c"
     },
     "[markdown]": {
         "editor.trimAutoWhitespace": false,

@@ -1,4 +1,4 @@
-VIA_ENABLE = yes
+VIA_ENABLE = no
 OLED_DRIVER_ENABLE = yes
 MOUSEKEY_ENABLE = no
 EXTRAKEY_ENABLE = yes
@@ -8,6 +8,7 @@ LTO_ENABLE = yes
 
 SRC += twpair_on_jis.c
 SRC += oled_render_slave.c
+SRC += ./lib/xtonhasvim_mod.c
 SRC += ./lib/logo_reader.c
 
 EXTRAFLAGS += -flto
