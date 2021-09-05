@@ -28,10 +28,20 @@ static void TAP(uint16_t keycode) {
     RELEASE(keycode);
 }
 
+static void TAP_x10(uint16_t keycode) {
+    for (uint8_t i = 0; i < 10; i++){
+        PRESS(keycode);
+        RELEASE(keycode);
+    }
+}
+
 static void CMD(uint16_t keycode) {
-  PRESS(KC_LGUI);
+//   PRESS(KC_LGUI);
+//     TAP(keycode);
+//   RELEASE(KC_LGUI);
+  PRESS(KC_LCTRL);
     TAP(keycode);
-  RELEASE(KC_LGUI);
+  RELEASE(KC_LCTRL);
 }
 
 static void CTRL(uint16_t keycode) {
@@ -66,38 +76,40 @@ static void edit(void) { vstate = VIM_START; layer_clear(); }
 static void simple_movement(uint16_t keycode) {
   switch(keycode) {
     case VIM_B:
-      PRESS(KC_LALT);
-        SHIFT(KC_LEFT); // select to start of this word
-      RELEASE(KC_LALT);
+      PRESS(KC_LSHIFT);
+      CTRL(KC_LEFT); // select to end of this word
+      RELEASE(KC_LSHIFT);
       break;
     case VIM_E:
-      PRESS(KC_LALT);
-        SHIFT(KC_RIGHT); // select to end of this word
-      RELEASE(KC_LALT);
+      PRESS(KC_LSHIFT);
+      CTRL(KC_RIGHT);
+      CTRL(KC_RIGHT);
+      RELEASE(KC_LSHIFT);
       break;
     case VIM_H:
-      SHIFT(KC_LEFT);
+      SHIFT(KC_HOME);
       break;
     case VIM_J:
-      CMD(KC_LEFT);
-      SHIFT(KC_DOWN);
-      SHIFT(KC_DOWN);
+      TAP(KC_HOME);
+      PRESS(KC_LSHIFT);
+      TAP(KC_DOWN);
+      TAP(KC_END);
+      RELEASE(KC_LSHIFT);
       break;
     case VIM_K:
-      CMD(KC_LEFT);
-      TAP(KC_DOWN);
-      SHIFT(KC_UP);
-      SHIFT(KC_UP);
+      TAP(KC_END);
+      PRESS(KC_LSHIFT);
+      TAP(KC_UP);
+      TAP(KC_HOME);
+      RELEASE(KC_LSHIFT);
       break;
     case VIM_L:
-      SHIFT(KC_RIGHT);
+      SHIFT(KC_END);
       break;
     case VIM_W:
-      PRESS(KC_LALT);
-      SHIFT(KC_RIGHT); // select to end of this word
-      SHIFT(KC_RIGHT); // select to end of next word
-      SHIFT(KC_LEFT);  // select to start of next word
-      RELEASE(KC_LALT);
+      PRESS(KC_LSHIFT);
+      CTRL(KC_RIGHT); // select to end of this word
+      RELEASE(KC_LSHIFT);
       break;
   }
 }
@@ -181,22 +193,18 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
              *****************************/
             case VIM_A:
               if(SHIFTED) {
-                // CMD(KC_RIGHT);
-                CTRL(KC_E);
+                TAP(KC_HOME);
               } else {
                 TAP(KC_RIGHT);
               }
               EDIT;
               break;
             case VIM_B:
-              PRESS(KC_LALT);
-              PRESS(KC_LEFT);
+              CTRL(KC_LEFT);
               break;
             case VIM_C:
               if(SHIFTED) {
-                PRESS(KC_LSHIFT);
-                  CMD(KC_RIGHT);
-                RELEASE(KC_LSHIFT);
+                SHIFT(KC_END);
                 CMD(KC_X);
                 yank_was_lines = false;
                 EDIT;
@@ -206,23 +214,30 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               break;
             case VIM_D:
               if(SHIFTED) {
-                CTRL(KC_K);
+                SHIFT(KC_END);
+                CTRL(KC_X);
               } else {
                 vstate = VIM_D;
               }
               break;
             case VIM_E:
-              PRESS(KC_LALT);
-              PRESS(KC_RIGHT);
+              CTRL(KC_RIGHT);
+              CTRL(KC_RIGHT);
               break;
             case VIM_G:
               if(SHIFTED) {
-                TAP(KC_END);
+                CTRL(KC_END);
               } else {
                 vstate = VIM_G;
               }
               break;
             case VIM_H:
+              if(SHIFTED) {
+                TAP(KC_HOME);
+              } else {
+                PRESS(KC_LEFT);
+              }
+              break;
               PRESS(KC_LEFT);
               break;
             case VIM_I:
@@ -233,38 +248,52 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               break;
             case VIM_J:
               if(SHIFTED) {
-                CMD(KC_RIGHT);
-                TAP(KC_DEL);
+                TAP_x10(KC_DOWN);
               } else {
                 PRESS(KC_DOWN);
               }
               break;
             case VIM_K:
-              PRESS(KC_UP);
+              if(SHIFTED) {
+                TAP_x10(KC_UP);
+              } else {
+                PRESS(KC_UP);
+              }
               break;
             case VIM_L:
-              PRESS(KC_RIGHT);
+              if(SHIFTED) {
+                TAP(KC_END);
+              } else {
+                PRESS(KC_RIGHT);
+              }
               break;
             case VIM_O:
               if(SHIFTED) {
-                CMD(KC_LEFT);
-                TAP(KC_ENTER);
                 TAP(KC_UP);
+                TAP(KC_END);
+                TAP(KC_ENTER);
                 EDIT;
               } else {
-                CMD(KC_RIGHT);
+                TAP(KC_END);
                 TAP(KC_ENTER);
                 EDIT;
               }
               break;
             case VIM_P:
               if(SHIFTED) {
-                CMD(KC_LEFT);
-                CMD(KC_V);
+                if(yank_was_lines) {
+                  TAP(KC_UP);
+                  TAP(KC_END);
+                  TAP(KC_ENTER);
+                  CMD(KC_V);
+                } else {
+                  TAP(KC_LEFT);
+                  CMD(KC_V);
+                }
               } else {
                 if(yank_was_lines) {
-                  CMD(KC_RIGHT);
-                  TAP(KC_RIGHT);
+                  TAP(KC_END);
+                  TAP(KC_ENTER);
                   CMD(KC_V);
                 } else {
                   CMD(KC_V);
@@ -274,10 +303,8 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             case VIM_S:
               // s for substitute?
               if(SHIFTED) {
-                CMD(KC_LEFT);
-                PRESS(KC_LSHIFT);
-                  CMD(KC_RIGHT);
-                RELEASE(KC_LSHIFT);
+                TAP(KC_HOME);
+                SHIFT(KC_END);
                 CMD(KC_X);
                 yank_was_lines = false;
                 EDIT;
@@ -307,11 +334,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               }
               break;
             case VIM_W:
-              PRESS(KC_LALT);
-                TAP(KC_RIGHT);
-                TAP(KC_RIGHT);
-                TAP(KC_LEFT);
-              RELEASE(KC_LALT);
+              CTRL(KC_RIGHT);
               break;
             case VIM_X:
               // SHIFT(KC_RIGHT);
@@ -320,10 +343,10 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               break;
             case VIM_Y:
               if(SHIFTED) {
-                CMD(KC_LEFT);
-                SHIFT(KC_DOWN);
-                CMD(KC_C);
-                TAP(KC_RIGHT);
+                TAP(KC_HOME);
+                SHIFT(KC_END);
+                CTRL(KC_C);
+                TAP(KC_HOME);
                 yank_was_lines = true;
               } else {
                 vstate = VIM_Y;
@@ -354,10 +377,8 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             break;
 
           case VIM_C:
-            CMD(KC_LEFT);
-            PRESS(KC_LSHIFT);
-              CMD(KC_RIGHT);
-            RELEASE(KC_LSHIFT);
+            TAP(KC_HOME);
+            SHIFT(KC_END);
             CMD(KC_X);
             yank_was_lines = false;
             EDIT;
@@ -406,9 +427,10 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             vstate = VIM_START;
             break;
           case VIM_D:
-            CMD(KC_LEFT);
-            SHIFT(KC_DOWN);
+            TAP(KC_HOME);
+            SHIFT(KC_END);
             CMD(KC_X);
+            TAP(KC_DEL);
             yank_was_lines = true;
             vstate = VIM_START;
             break;
@@ -577,7 +599,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
            *****************************/
           switch(keycode) {
             case VIM_G:
-              TAP(KC_HOME);
+              CTRL(KC_HOME);
               break;
             // codes b
             case VIM_H:
@@ -616,10 +638,10 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             yank_was_lines = false;
             break;
           case VIM_Y:
-            CMD(KC_LEFT);
-            SHIFT(KC_DOWN);
-            CMD(KC_C);
-            TAP(KC_RIGHT);
+            TAP(KC_HOME);
+            SHIFT(KC_END);
+            CTRL(KC_C);
+            TAP(KC_HOME);
             yank_was_lines = true;
             break;
           default:

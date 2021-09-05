@@ -156,7 +156,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
-char wpm_buffer[3];
+char wpm_buffer[4];
 
 char *tochar(uint8_t i, char *p)
 {
