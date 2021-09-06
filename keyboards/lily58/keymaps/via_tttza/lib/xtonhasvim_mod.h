@@ -62,15 +62,11 @@ enum xtonhasvim_keycodes {
   VIM_SAFE_RANGE // start other keycodes here.
 };
 
-// const char vim_code_to_name[29][2] = {
-//     "a", "b", "c", "ci", "d", "e", "h", "g", "i", "j",
-//     "k", "l", "o", "p", "s", "u", "v", "vs", "vi", "w",
-//     "x", "y", ",", ".", "S_",  "/", "W↑", "W↓", "ES", "XX", "SR"
-//     };
 
 
 bool process_record_vim(uint16_t keycode, keyrecord_t *record);
 bool get_is_office_mode(void);
+void get_vim_status(char* outStr);
 
 // NOTE: YOU MUST DEFINE THIS
 extern uint8_t vim_cmd_layer(void);

@@ -156,6 +156,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
+char vim_stats_buffer[2];
 char wpm_buffer[4];
 
 char *tochar(uint8_t i, char *p)
@@ -216,6 +217,7 @@ void oled_task_user(void) {
         oled_write("  ", false);
     }
 
+    // Win Logo
     oled_set_cursor(3, 4);
     if (layer_state_is(vim_cmd_layer()) & get_is_office_mode()){
         oled_write_raw_P(win_logo1, sizeof(win_logo1));
@@ -225,6 +227,19 @@ void oled_task_user(void) {
         oled_write("  ", false);
         oled_set_cursor(3, 5);
         oled_write("  ", false);
+    }
+
+    oled_set_cursor(6, 4);
+    if (layer_state_is(vim_cmd_layer())){
+        get_vim_status(vim_stats_buffer);
+        oled_write(vim_stats_buffer, false);
+        oled_write("   ", false);
+        oled_set_cursor(6, 5);
+        oled_write("~~~", false);
+    } else {
+        oled_write("   ", false);
+        oled_set_cursor(6, 5);
+        oled_write("   ", false);
     }
 
     oled_set_cursor(5, 6);

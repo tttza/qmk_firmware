@@ -88,7 +88,7 @@ static void simple_movement(uint16_t keycode) {
     case VIM_E:
       PRESS(KC_LSHIFT);
       CTRL(KC_RIGHT);
-      CTRL(KC_RIGHT);
+      TAP(KC_RIGHT);
       RELEASE(KC_LSHIFT);
       break;
     case VIM_H:
@@ -237,7 +237,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               break;
             case VIM_E:
               CTRL(KC_RIGHT);
-              CTRL(KC_RIGHT);
+              TAP(KC_RIGHT);
               break;
             case VIM_G:
               if(SHIFTED) {
@@ -683,9 +683,19 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-// char[4] vim_status;
 
-// char[4] get_vim_status(void){
-//     return vim_status;
-// }
+static const char vim_code_to_name[][2] = {
+    "#", "a", "b", "c", "ci", "d", "di", "e", "h", "g",
+    "i", "j", "k", "l", "o", "p", "s", "u", "v", "vs",
+    "vi", "w", "x", "y", ",", ".", "S_",  "/", "WO", "WF",
+    "ES", "XX", "SR"
+    };
+
+void get_vim_status(char* outStr);
+void get_vim_status(char* outStr){
+    // char curr_status[] = ;
+    for (uint8_t i=0; i<2; i++){
+        outStr[i] = vim_code_to_name[vstate-VIM_START][i];
+    }
+}
 
