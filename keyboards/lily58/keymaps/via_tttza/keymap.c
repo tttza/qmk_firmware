@@ -177,9 +177,20 @@ char *tochar(uint8_t i, char *p)
 
 const char *read_logo(void);
 
-static const char PROGMEM vim_logo[] = {
-   0,126,195,129,141,145,161,145,141,129,165,189,165,129,189,137,145,137,189,129,195,126,  0,  0,
+static const char PROGMEM vim_logo1[] = {
+    240,232, 12, 12,236,252,108, 12, 12,200,240,  0
 };
+static const char PROGMEM vim_logo2[] = {
+    15, 31, 32, 32, 39, 49, 56, 60, 63, 31, 15,  0
+};
+static const char PROGMEM win_logo1[] = {
+    124,124,124,124,124,  0,124,124,124,124,124,  0
+};
+static const char PROGMEM win_logo2[] = {
+    31, 31, 31, 31, 31,  0, 31, 31, 31, 31, 31,  0,
+};
+
+
 
 void oled_task_user(void) {
   if (is_keyboard_master()) {
@@ -193,11 +204,27 @@ void oled_task_user(void) {
         oled_write_ln(" US", false);
     }
 
+    // VIM Logo
     oled_set_cursor(0, 4);
     if (layer_state_is(vim_cmd_layer())){
-        oled_write_raw_P(vim_logo, sizeof(vim_logo));
+        oled_write_raw_P(vim_logo1, sizeof(vim_logo1));
+        oled_set_cursor(0, 5);
+        oled_write_raw_P(vim_logo2, sizeof(vim_logo2));
     } else {
-        oled_write("    ", false);
+        oled_write("  ", false);
+        oled_set_cursor(0, 5);
+        oled_write("  ", false);
+    }
+
+    oled_set_cursor(3, 4);
+    if (layer_state_is(vim_cmd_layer())){
+        oled_write_raw_P(win_logo1, sizeof(win_logo1));
+        oled_set_cursor(3, 5);
+        oled_write_raw_P(win_logo2, sizeof(win_logo2));
+    } else {
+        oled_write("  ", false);
+        oled_set_cursor(3, 5);
+        oled_write("  ", false);
     }
 
     oled_set_cursor(5, 6);
