@@ -134,8 +134,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   VIM_ESC, VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX,                   VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX,\
   VIM_XXX, VIM_XXX, VIM_W,   VIM_E,   VIM_XXX, VIM_XXX,                   VIM_Y,   VIM_U,   VIM_I,   VIM_O,   VIM_P ,  VIM_XXX, \
   VIM_ESC,   VIM_A, VIM_S,   VIM_D,   VIM_G,   VIM_XXX,                   VIM_H,   VIM_J,   VIM_K,   VIM_L,   VIM_XXX, VIM_XXX, \
-  VIM_SHIFT,VIM_XXX,VIM_X,   VIM_C,   VIM_V,   VIM_B,   VIM_XXX, VIM_XXX, VIM_XXX, VIM_XXX, VIM_COMMA,VIM_PERIOD,VIM_XXX,VIM_SHIFT, \
-                             _______, _______, _______, _______, _______,  _______, KC_BSPC, _______ \
+  VIM_SHIFT,VIM_XXX,VIM_X,   VIM_C,   VIM_V,   VIM_B,VIM_WIN_OFF,VIM_WIN_ON,VIM_XXX, VIM_XXX, VIM_COMMA,VIM_PERIOD,VIM_XXX,VIM_SHIFT, \
+                             VIM_I,   VIM_I,   VIM_I,   VIM_I,   VIM_I,    VIM_I, KC_BSPC,   VIM_I \
   )
 };
 
@@ -217,7 +217,7 @@ void oled_task_user(void) {
     }
 
     oled_set_cursor(3, 4);
-    if (layer_state_is(vim_cmd_layer())){
+    if (layer_state_is(vim_cmd_layer()) & get_is_office_mode()){
         oled_write_raw_P(win_logo1, sizeof(win_logo1));
         oled_set_cursor(3, 5);
         oled_write_raw_P(win_logo2, sizeof(win_logo2));

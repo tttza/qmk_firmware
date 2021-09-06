@@ -54,20 +54,23 @@ enum xtonhasvim_keycodes {
   VIM_PERIOD, // to support indent/outdent
   VIM_COMMA,  // and toggle comments
   VIM_SHIFT, // avoid side-effect of supporting real shift.
-  VIM_ESC, // bookend
   VIM_SLASH,
+  VIM_WIN_ON,
+  VIM_WIN_OFF,
   VIM_XXX,
+  VIM_ESC, // bookend
   VIM_SAFE_RANGE // start other keycodes here.
 };
 
 // const char vim_code_to_name[29][2] = {
 //     "a", "b", "c", "ci", "d", "e", "h", "g", "i", "j",
 //     "k", "l", "o", "p", "s", "u", "v", "vs", "vi", "w",
-//     "x", "y", ",", ".", "S_", "ES", "/", "XX", "SR"
+//     "x", "y", ",", ".", "S_",  "/", "W↑", "W↓", "ES", "XX", "SR"
 //     };
 
 
 bool process_record_vim(uint16_t keycode, keyrecord_t *record);
+bool get_is_office_mode(void);
 
 // NOTE: YOU MUST DEFINE THIS
 extern uint8_t vim_cmd_layer(void);

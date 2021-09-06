@@ -68,9 +68,14 @@ static bool yank_was_lines = false;
 static bool SHIFTED = false;
 static uint32_t mod_override_layer_state = 0;
 static uint16_t mod_override_triggering_key = 0;
+static bool is_office_mode = false;
 
 static void edit(void) { vstate = VIM_START; layer_clear(); }
 #define EDIT edit()
+
+bool get_is_office_mode(void){
+    return is_office_mode;
+}
 
 
 static void simple_movement(uint16_t keycode) {
@@ -170,6 +175,14 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
     }
 
     if (record->event.pressed) {
+      if (keycode == VIM_WIN_ON ){
+          is_office_mode = true;
+          return false;
+      }
+      if (keycode == VIM_WIN_OFF ){
+          is_office_mode = false;
+          return false;
+      }
       if(keycode == VIM_START) {
         if (layer_state_is(vim_cmd_layer()) & (vstate == VIM_START)){ layer_clear(); return false; } // Toggle
 
@@ -205,6 +218,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             case VIM_C:
               if(SHIFTED) {
                 SHIFT(KC_END);
+                if (is_office_mode) {SHIFT(KC_LEFT);};
                 CMD(KC_X);
                 yank_was_lines = false;
                 EDIT;
@@ -215,6 +229,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
             case VIM_D:
               if(SHIFTED) {
                 SHIFT(KC_END);
+                if (is_office_mode) {SHIFT(KC_LEFT);};
                 CTRL(KC_X);
               } else {
                 vstate = VIM_D;
@@ -305,6 +320,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               if(SHIFTED) {
                 TAP(KC_HOME);
                 SHIFT(KC_END);
+                if (is_office_mode) {SHIFT(KC_LEFT);};
                 CMD(KC_X);
                 yank_was_lines = false;
                 EDIT;
@@ -345,6 +361,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
               if(SHIFTED) {
                 TAP(KC_HOME);
                 SHIFT(KC_END);
+                if (is_office_mode) {SHIFT(KC_LEFT);};
                 CTRL(KC_C);
                 TAP(KC_HOME);
                 yank_was_lines = true;
@@ -379,6 +396,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
           case VIM_C:
             TAP(KC_HOME);
             SHIFT(KC_END);
+            if (is_office_mode) {SHIFT(KC_LEFT);};
             CMD(KC_X);
             yank_was_lines = false;
             EDIT;
@@ -429,6 +447,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
           case VIM_D:
             TAP(KC_HOME);
             SHIFT(KC_END);
+            if (is_office_mode) {SHIFT(KC_LEFT);};
             CMD(KC_X);
             TAP(KC_DEL);
             yank_was_lines = true;
@@ -640,6 +659,7 @@ bool process_record_vim(uint16_t keycode, keyrecord_t *record) {
           case VIM_Y:
             TAP(KC_HOME);
             SHIFT(KC_END);
+            if (is_office_mode) {SHIFT(KC_LEFT);};
             CTRL(KC_C);
             TAP(KC_HOME);
             yank_was_lines = true;
