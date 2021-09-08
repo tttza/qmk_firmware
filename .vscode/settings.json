@@ -21,7 +21,8 @@
         "ranges": "c",
         "chrono": "c",
         "cstdlib": "c",
-        "xstring": "c"
+        "xstring": "c",
+        "cmath": "c"
     },
     "[markdown]": {
         "editor.trimAutoWhitespace": false,
