@@ -300,19 +300,22 @@ void set_keyboard_lang_to_jis(bool set_jis){
 
 // ref: https://gist.github.com/okapies/5d13a174cbb13ce34dbd9faede9d0b71#file-keymap-c-L99-L164
 static bool lower_pressed = false;
+static bool lower_cmb_pressed = false;
 static uint16_t lower_pressed_time = 0;
 static bool raise_pressed = false;
+static bool raise_cmb_pressed = false;
 static uint16_t raise_pressed_time = 0;
 bool process_lower(uint16_t keycode, keyrecord_t *record){
      if (record->event.pressed) {
         lower_pressed = true;
+        lower_cmb_pressed = false;
         lower_pressed_time = record->event.time;
 
         layer_on(_LOWER);
       } else {
         layer_off(_LOWER);
 
-        if (lower_pressed && (TIMER_DIFF_16(record->event.time, lower_pressed_time) < TAPPING_TERM)) {
+        if (!lower_cmb_pressed && lower_pressed && (TIMER_DIFF_16(record->event.time, lower_pressed_time) < TAPPING_TERM)) {
           register_code(KC_MHEN);
           unregister_code(KC_MHEN);
           register_code(KC_LANG2); // for macOS
@@ -325,13 +328,14 @@ bool process_lower(uint16_t keycode, keyrecord_t *record){
 bool process_raise(uint16_t keycode, keyrecord_t *record){
       if (record->event.pressed) {
         raise_pressed = true;
+        raise_cmb_pressed = false;
         raise_pressed_time = record->event.time;
 
         layer_on(_RAISE);
       } else {
         layer_off(_RAISE);
 
-        if (raise_pressed && (TIMER_DIFF_16(record->event.time, raise_pressed_time) < TAPPING_TERM)) {
+        if (!raise_cmb_pressed && raise_pressed && (TIMER_DIFF_16(record->event.time, raise_pressed_time) < TAPPING_TERM)) {
           register_code(KC_HENK);
           unregister_code(KC_HENK);
           register_code(KC_LANG1); // for macOS
@@ -362,6 +366,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case RAISE:
         return process_raise(keycode, record);
     default:
+      if (lower_pressed) { lower_cmb_pressed = true; }
+      if (raise_pressed) { raise_cmb_pressed = true; }
       if (user_config.jis){
           return twpair_on_jis(keycode, record);
       } else {
