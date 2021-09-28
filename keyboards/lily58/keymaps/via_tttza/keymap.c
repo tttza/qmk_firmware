@@ -158,6 +158,8 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 char vim_stats_buffer[2];
 char wpm_buffer[4];
+char wpm_buffer_max[4];
+uint8_t max_wpm = 0;
 
 char *tochar(uint8_t i, char *p)
 {
@@ -257,6 +259,17 @@ void oled_task_user(void) {
     tochar(get_current_wpm(), wpm_buffer);
     oled_write(wpm_buffer, false);
     oled_write_P(PSTR("  "), false);
+
+    if (get_current_wpm() > max_wpm) {
+      max_wpm = get_current_wpm();
+      oled_set_cursor(7, 7);
+      oled_write_P(PSTR("max: "), false);
+      tochar(max_wpm, wpm_buffer_max);
+      oled_write(wpm_buffer_max, false);
+      oled_write_P(PSTR("  "), false);
+    }
+
+
   }
 }
 #endif // OLED_DRIVER_ENABLE
